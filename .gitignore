@@ -1,0 +1,23 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Xcode
+build/
+DerivedData/
+xcuserdata/
+*.xcbkptlist
+*.xcuserstate
+
+# Compiled binaries and debug artifacts
+*.dSYM/
+*.o
+*.out
+
+# Temp files
+*.tmp
+*~
+
+focus_manager
+focus_monitor
