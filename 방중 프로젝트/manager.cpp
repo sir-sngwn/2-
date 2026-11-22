@@ -34,7 +34,7 @@ public:
     webBlocker(const string& file = "web_list.txt") : filename(file) {
         ifstream fileStream(filename);
         if (!fileStream.is_open()) {
-            addNew("유튜브쇼츠", "youtube.com/shorts/");
+            addNew("유튜브", "youtube.com");
             addNew("인스타릴스", "instagram.com/reels/");
         } else {
             string name, url;

@@ -62,6 +62,7 @@ make setup
    # 또는 직접 컴파일:
    clang++ -std=c++11 -O2 -o src/focus_manager src/manager.cpp
    clang++ -std=c++11 -O2 -o src/focus_monitor src/monitor.cpp
+   clang++ -std=c++11 -framework Cocoa -framework WebKit -o src/focus_popup src/popup.mm
    ```
 
 2. **플러그인 실행 권한 설정:**

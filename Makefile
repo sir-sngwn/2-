@@ -8,12 +8,13 @@ SRC_DIR = src
 
 MANAGER_BIN = $(SRC_DIR)/focus_manager
 MONITOR_BIN = $(SRC_DIR)/focus_monitor
+POPUP_BIN = $(SRC_DIR)/focus_popup
 PLUGIN_SCRIPT = SwiftBarPlugins/focus_toggle.3s.sh
 
 .PHONY: all setup clean run-manager run-monitor stop-monitor status help
 
-all: $(MANAGER_BIN) $(MONITOR_BIN)
-	@echo "✅ [빌드 완료] focus_manager 및 focus_monitor가 성공적으로 컴파일되었습니다."
+all: $(MANAGER_BIN) $(MONITOR_BIN) $(POPUP_BIN)
+	@echo "✅ [빌드 완료] focus_manager, focus_monitor, focus_popup이 성공적으로 컴파일되었습니다."
 
 # 처음 설치 시 원클릭 환경 구성
 setup: all
@@ -34,9 +35,13 @@ $(MONITOR_BIN): $(SRC_DIR)/monitor.cpp
 	@echo "🔨 컴파일 중: $(MONITOR_BIN)..."
 	$(CXX) $(CXXFLAGS) -o $@ $<
 
+$(POPUP_BIN): $(SRC_DIR)/popup.mm
+	@echo "🔨 컴파일 중: $(POPUP_BIN)..."
+	$(CXX) $(CXXFLAGS) -framework Cocoa -framework WebKit -o $@ $<
+
 clean:
 	@echo "🧹 실행 파일 정리 중..."
-	rm -f $(MANAGER_BIN) $(MONITOR_BIN)
+	rm -f $(MANAGER_BIN) $(MONITOR_BIN) $(POPUP_BIN)
 	@echo "✅ 정리 완료."
 
 run-manager: $(MANAGER_BIN)

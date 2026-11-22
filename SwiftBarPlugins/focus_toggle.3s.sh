@@ -17,6 +17,7 @@ fi
 if [ "$1" = "toggle" ]; then
     if pgrep -f "focus_monitor" > /dev/null; then
         pkill -9 -f "focus_monitor"
+        pkill -9 -f "focus_popup" > /dev/null 2>&1
         pkill -9 -f "user-data-dir=/tmp/focus_pet" > /dev/null 2>&1
     else
         nohup "$PROG" "$DIR" > /dev/null 2>&1 &

@@ -38,7 +38,7 @@ public:
         webList.clear();
         ifstream file(filename);
         if (!file.is_open()) {
-            webList.push_back({"유튜브쇼츠", "youtube.com/shorts/"});
+            webList.push_back({"유튜브", "youtube.com"});
             webList.push_back({"인스타릴스", "instagram.com/reels/"});
             return;
         }
@@ -52,14 +52,10 @@ public:
         string cmd = "osascript -e '"
                      "set res to \"\"\n"
                      "if application \"Google Chrome\" is running then\n"
-                     "    tell application \"Google Chrome\"\n"
-                     "        set res to res & (URL of active tab of every window as string) & \" \"\n"
-                     "    end tell\n"
+                     "    tell application \"Google Chrome\" to set res to res & (URL of every tab of every window as string) & \" \"\n"
                      "end if\n"
                      "if application \"Safari\" is running then\n"
-                     "    tell application \"Safari\"\n"
-                     "        set res to res & (URL of every document as string) & \" \"\n"
-                     "    end tell\n"
+                     "    tell application \"Safari\" to set res to res & (URL of every tab of every window as string) & \" \"\n"
                      "end if\n"
                      "return res"
                      "' 2>/dev/null";
@@ -67,15 +63,20 @@ public:
         FILE* pipe = popen(cmd.c_str(), "r");
         if (!pipe) return false;
 
-        char buffer[512];
+        char buffer[2048];
         string currentUrls = "";
         while (fgets(buffer, sizeof(buffer), pipe) != NULL) {
             currentUrls += buffer;
         }
         pclose(pipe);
 
+        for (char &c : currentUrls) c = tolower(c);
+
         for (const auto& web : webList) {
-            if (!web.URL.empty() && currentUrls.find(web.URL) != string::npos) {
+            if (web.URL.empty()) continue;
+            string target = web.URL;
+            for (char &c : target) c = tolower(c);
+            if (currentUrls.find(target) != string::npos) {
                 return true;
             }
         }
@@ -130,26 +131,47 @@ string getPetHtmlPath(const string& baseDir) {
     return baseDir + "pet/pet.html";
 }
 
-void showPopup(const string& htmlPath) {
+string findPopupBin(const string& baseDir) {
+    const char* home = getenv("HOME");
+    string homeStr = home ? string(home) : "";
+
+    vector<string> candidates = {
+        baseDir + "focus_popup",
+        baseDir + "../focus_popup",
+        homeStr + "/focus_project/focus_popup",
+        homeStr + "/Desktop/방중 프로젝트/방중 프로젝트/focus_popup"
+    };
+
+    for (const auto& path : candidates) {
+        if (access(path.c_str(), X_OK) == 0) {
+            return path;
+        }
+    }
+    return "";
+}
+
+void showPopup(const string& htmlPath, const string& baseDir) {
     if (htmlPath.empty()) return;
     
-    string checkCmd = "pgrep -f 'user-data-dir=/tmp/focus_pet' > /dev/null 2>&1";
+    string checkCmd = "pgrep -f 'focus_popup' > /dev/null 2>&1";
     if (system(checkCmd.c_str()) == 0) {
         return;
     }
 
-    string cmd = "open -na \"Google Chrome\" --args --user-data-dir=/tmp/focus_pet --app=\"file://" 
-                 + htmlPath + "\" --window-size=300,300 > /dev/null 2>&1 &";
-    int res = system(cmd.c_str());
-    if (res != 0) {
+    string popupBin = findPopupBin(baseDir);
+    if (!popupBin.empty()) {
+        string cmd = "\"" + popupBin + "\" \"" + htmlPath + "\" > /dev/null 2>&1 &";
+        system(cmd.c_str());
+    } else {
         string fallback = "open \"" + htmlPath + "\" > /dev/null 2>&1 &";
         system(fallback.c_str());
     }
 }
+
 void hidePopup() {
-    string checkCmd = "pgrep -f 'user-data-dir=/tmp/focus_pet' > /dev/null 2>&1";
+    string checkCmd = "pgrep -f 'focus_popup' > /dev/null 2>&1";
     if (system(checkCmd.c_str()) == 0) {
-        system("pkill -9 -f 'user-data-dir=/tmp/focus_pet' > /dev/null 2>&1");
+        system("pkill -9 -f 'focus_popup' > /dev/null 2>&1");
     }
 }
 
@@ -168,7 +190,7 @@ int main(int argc, char* argv[]) {
 
         bool detected = wb.isRunning() || pb.isRunning();
         if (detected) {
-            showPopup(htmlPath);
+            showPopup(htmlPath, baseDir);
         } else {
             hidePopup();
         }
