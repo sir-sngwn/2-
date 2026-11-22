@@ -76,7 +76,7 @@ public:
 
 class processBlocker : public getFocused {
     vector<blockProcess> processList;
-    string filename; // [변경] 고정 문자열 대신 생성자에서 경로를 받음
+    string filename;
 public:
     processBlocker(const string& file = "proc_list.txt") : filename(file) {
         ifstream fileStream(filename);
@@ -120,7 +120,6 @@ public:
     }
 };
 
-// [변경] 실행 인자(argc, argv)로 데이터 폴더 경로를 받을 수 있도록 수정
 int main(int argc, char* argv[]) {
     string baseDir = (argc > 1) ? string(argv[1]) + "/" : "";
     webBlocker wb(baseDir + "web_list.txt");
@@ -128,14 +127,14 @@ int main(int argc, char* argv[]) {
     string menu = "";
 
     while (true) {
-        cout << "\n=== 차단 목록 관리기 ===\n";
-        cout << "차단 웹사이트 목록 (print_web)\n";
-        cout << "차단 웹사이트 추가 (add_web)\n";
-        cout << "차단 프로그램 목록 (print_proc)\n";
-        cout << "차단 프로그램 추가 (add_proc)\n";
-        cout << "항목 삭제 (delete)\n";
-        cout << "종료 (end)\n";
-        cout << "선택 : ";
+        cout << "\n=== management command list ===\n";
+        cout << "print_web\n";
+        cout << "add_web\n";
+        cout << "print_proc\n";
+        cout << "add_proc\n";
+        cout << "delete\n";
+        cout << "end\n";
+        cout << ": ";
         cin >> menu;
 
         if (menu == "end") {

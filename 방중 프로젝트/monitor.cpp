@@ -49,7 +49,6 @@ public:
     }
 
     bool isRunning() override {
-        // Chrome과 Safari에서 열려 있는 모든 창의 URL 확인
         string cmd = "osascript -e '"
                      "set res to \"\"\n"
                      "if application \"Google Chrome\" is running then\n"
@@ -112,7 +111,6 @@ public:
     }
 };
 
-// GIF가 포함된 pet.html 파일 경로를 동적으로 탐색
 string getPetHtmlPath(const string& baseDir) {
     const char* home = getenv("HOME");
     string homeStr = home ? string(home) : "";
@@ -132,22 +130,18 @@ string getPetHtmlPath(const string& baseDir) {
     return baseDir + "pet/pet.html";
 }
 
-// GIF 팝업 창 띄우기
 void showPopup(const string& htmlPath) {
     if (htmlPath.empty()) return;
-
-    // 이미 팝업 창이 열려있는지 확인
+    
     string checkCmd = "pgrep -f 'user-data-dir=/tmp/focus_pet' > /dev/null 2>&1";
     if (system(checkCmd.c_str()) == 0) {
-        return; // 이미 떠 있으면 중복으로 띄우지 않음
+        return;
     }
 
-    // Google Chrome 독립 app 창으로 GIF 팝업 실행
     string cmd = "open -na \"Google Chrome\" --args --user-data-dir=/tmp/focus_pet --app=\"file://" 
                  + htmlPath + "\" --window-size=300,300 > /dev/null 2>&1 &";
     int res = system(cmd.c_str());
     if (res != 0) {
-        // 크롬 미설치 또는 실패 시 시스템 기본 브라우저로 팝업
         string fallback = "open \"" + htmlPath + "\" > /dev/null 2>&1 &";
         system(fallback.c_str());
     }
@@ -179,7 +173,7 @@ int main(int argc, char* argv[]) {
             hidePopup();
         }
 
-        this_thread::sleep_for(chrono::seconds(10));
+        this_thread::sleep_for(chrono::seconds(3));
     }
 
     return 0;
